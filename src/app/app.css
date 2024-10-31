@@ -1,0 +1,105 @@
+/* General page styling */
+body, html {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #1a1a1a;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: 'Arial', sans-serif;
+  }
+  
+  /* Main container layout */
+  div {
+    display: flex;
+    flex-direction: row;
+    gap: 2rem;
+    width: 90%;
+    max-width: 1200px;
+    align-items: flex-start;
+  }
+  
+  /* Attribute section layout */
+  .attributes {
+    margin-bottom: 2rem;
+  }
+  
+  .attributes h3 {
+    margin-bottom: 1rem;
+    color: white;
+    text-align: center;
+  }
+  
+  /* Attribute icons arranged in rows of 5 */
+  .attribute-icons {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr); /* 5 items per row */
+    gap: 10px;
+    justify-items: center;
+  }
+  
+  /* Styling for individual icons */
+  .attribute-icon {
+    width: 100px;
+    height: 100px;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  
+  /* Selected icon effect */
+  .selected {
+    border: 2px solid royalblue;
+    box-shadow: 0 0 10px royalblue, 0 0 20px royalblue;
+  }
+  
+  /* Hover effect for icons */
+  .attribute-icon:hover {
+    transform: scale(1.1);
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.6);
+  }
+  
+  /* Mint button styling */
+  button {
+    padding: 1rem;
+    background-color: royalblue;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    width: 100%;
+    cursor: pointer;
+    font-size: 1.2rem;
+    transition: background-color 0.3s;
+    margin-top: 1rem;
+  }
+  
+  button:hover {
+    background-color: darkblue;
+  }
+  
+  button:disabled {
+    background-color: gray;
+    cursor: not-allowed;
+  }
+
+  
+  
+  /* Canvas layout */
+  .canvas {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 60%;
+    height: 100%;
+  }
+  
+  .canvas canvas {
+    border: 2px solid white;
+    border-radius: 10px;
+    width: 100%;
+    max-width: 500px;
+    height: 500px;
+  }
+  

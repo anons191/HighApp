@@ -1,100 +1,329 @@
 "use client";
 
-import Image from "next/image";
-import { ConnectButton } from "thirdweb/react";
-import thirdwebIcon from "@public/thirdweb.svg";
+import {
+  ConnectButton,
+  useActiveWallet,
+  useSendAndConfirmTransaction,
+} from "thirdweb/react";
 import { client } from "./client";
+import { sepolia } from "thirdweb/chains";
+import { toWei } from "thirdweb/utils";
+import { useEffect, useRef, useState } from "react";
+
+
+// NFT Attribute Options
+const backgrounds = ["/images/BackgroundBeige.png", "/images/BackgroundGold.png", "/images/BackgroundGrey.png"];
+const tops = ["/images/HoodieBTC.png", "/images/HoodieLogo.png", "/images/ShirtHawaiian.png", "/images/SuitPurple.png"];
+const furs = ["/images/FurBlue.png", "/images/FurGold2.png", "/images/FurRed.png", "/images/FurGreen.png"];
+const skins = [ "/images/SkinGold.png", "/images/SkinNatural.png", "/images/SkinZombie.png"];
+const mouths = ["/images/MouthBlunt.png", "/images/MouthGoldGrill.png", "/images/MouthTongue.png",];
+const glasses = ["/images/Eyepatch.png", "/images/Glasses3D.png", "/images/GlassesAviator.png", "/images/GlassesHeart.png", "/images/GlassesPurpleRound.png", "/images/GlassesYeezy.png"];
+const jewelry = ["/images/GMZombie.png", "/images/GoldGM.png", "/images/GoldHoopEarring.png"];
+
+// Configuration
+const WALLET_ADDRESS = "0x575A9960be5f23C8E8aF7F9C8712A539eB255bE6";
+const MINT_PRICE = "0.0001"; // ETH
+
+interface NFTAttributes {
+  background: string;
+  top: string;
+  fur: string;
+  skin: string;
+  mouth: string;
+  glass: string;
+  jewel: string;
+}
 
 export default function Home() {
-  return (
-    <main className="p-4 pb-10 min-h-[100vh] flex items-center justify-center container max-w-screen-lg mx-auto">
-      <div className="py-20">
-        <Header />
+  const wallet = useActiveWallet();
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const { mutate: sendAndConfirmTx } = useSendAndConfirmTransaction();
 
-        <div className="flex justify-center mb-20">
-          <ConnectButton
-            client={client}
-            appMetadata={{
-              name: "Example App",
-              url: "https://example.com",
-            }}
-          />
-        </div>
+  // State Management
+  const [isNftMinting, setNftMinting] = useState<boolean>(false);
+  const [attributes, setAttributes] = useState<NFTAttributes>({
+    background: "",
+    top: "",
+    fur: "",
+    skin: "",
+    mouth: "",
+    glass: "",
+    jewel: "",
+  });
 
-        <ThirdwebResources />
+  // Helper function to load images safely
+  const loadImage = (src: string): Promise<HTMLImageElement> => {
+    return new Promise((resolve, reject) => {
+      if (!src) {
+        resolve(new Image()); // Return empty image for empty sources
+        return;
+      }
+      const img = new Image();
+      img.src = src;
+      img.onload = () => resolve(img);
+      img.onerror = () => reject(new Error(`Failed to load image: ${src}`));
+    });
+  };
+
+  // Update canvas when attributes change
+  useEffect(() => {
+    const updateCanvas = async () => {
+      const canvas = canvasRef.current;
+      const ctx = canvas?.getContext("2d");
+      if (!canvas || !ctx) return;
+
+      try {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        const imageSources = [
+          attributes.background,
+          attributes.top,
+          attributes.fur,
+          attributes.skin,
+          attributes.mouth,
+          attributes.glass,
+          attributes.jewel,
+        ];
+
+        const images = await Promise.all(imageSources.map(loadImage));
+
+        images.forEach((img) => {
+          if (img.src) {
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+          }
+        });
+      } catch (error) {
+        console.error("Failed to update canvas:", error);
+        alert("Failed to load one or more images. Please try different selections.");
+      }
+    };
+
+    updateCanvas();
+  }, [attributes]);
+
+  // Convert canvas to blob for minting
+  const convertCanvasToBlob = async (): Promise<Blob> => {
+    if (!canvasRef.current) {
+      throw new Error("Canvas not initialized");
+    }
+
+    return new Promise((resolve, reject) => {
+      canvasRef.current?.toBlob((blob) => {
+        if (blob) resolve(blob);
+        else reject(new Error("Failed to convert canvas to blob"));
+      });
+    });
+  };
+
+  // Send NFT mint request to backend
+  const sendNftMintRequest = async (blob: Blob): Promise<any> => {
+    const account = wallet?.getAccount();
+    const address = account?.address;
+    
+    if (!address) {
+      throw new Error("No wallet address found");
+    }
+
+    const formData = new FormData();
+    formData.append("image", blob, "nft.png");
+    formData.append("address", address);
+
+    const response = await fetch("/api/mintNft", {
+      method: "POST",
+      body: formData,
+    });
+
+    const data = await response.json();
+    
+    if (!response.ok) {
+      throw new Error(data.message || "NFT minting failed");
+    }
+
+    return data;
+  };
+
+  // Handle the minting process
+const handleMint = async () => {
+  if (!wallet) {
+    alert("Please connect your wallet first");
+    return;
+  }
+
+  setNftMinting(true);
+
+  try {
+    // Prepare payment transaction
+    const tx = {
+      to: WALLET_ADDRESS,
+      value: toWei(MINT_PRICE),
+      chain: sepolia,
+      client: client,
+    };
+
+    // Send payment and wait for confirmation
+    await new Promise((resolve, reject) => {
+      sendAndConfirmTx(tx, {
+        onSuccess: (receipt) => {
+          console.log("Payment confirmed!", receipt);
+          resolve(receipt);
+        },
+        onError: (txError) => {
+          console.error("Transaction failed:", txError);
+          reject(new Error("Payment failed or was rejected"));
+        },
+      });
+    });
+
+    // Convert canvas to blob
+    const blob = await convertCanvasToBlob();
+
+    // Send minting request
+    await sendNftMintRequest(blob);
+
+    alert("NFT minted successfully!");
+  } catch (error) {
+    console.error("Minting process failed:", error);
+
+    const message = error instanceof Error
+      ? error.message
+      : "An unknown error occurred during the minting process";
+
+    alert(`Minting failed: ${message}`);
+  } finally {
+    setNftMinting(false);
+  }
+};
+
+  // Update individual attributes
+  const updateAttribute = (key: keyof NFTAttributes, value: string) => {
+    setAttributes(prev => ({ ...prev, [key]: value }));
+  };
+
+  // Check if all attributes are selected
+  const isReadyToMint = Object.values(attributes).every(value => value !== "");
+
+  // Render connect wallet button if no wallet is connected
+  if (!wallet) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <ConnectButton 
+          client={client} 
+          appMetadata={{ 
+            name: "High Monkey", 
+            url: "https://example.com" 
+          }} 
+        />
       </div>
-    </main>
-  );
-}
+    );
+  }
 
-function Header() {
+  // Main component render
   return (
-    <header className="flex flex-col items-center mb-20 md:mb-20">
-      <Image
-        src={thirdwebIcon}
-        alt=""
-        className="size-[150px] md:size-[150px]"
-        style={{
-          filter: "drop-shadow(0px 0px 24px #a726a9a8)",
-        }}
-      />
+    <div className="container mx-auto p-4 flex flex-wrap">
+      <div className="w-full md:w-1/2 p-4">
+        <div className="bg-gray-800 rounded-lg p-6">
+          <div className="mb-6">
+            <ConnectButton
+              client={client}
+              appMetadata={{ name: "High Monkey", url: "https://example.com" }}
+            />
+          </div>
 
-      <h1 className="text-2xl md:text-6xl font-semibold md:font-bold tracking-tighter mb-6 text-zinc-100">
-        thirdweb SDK
-        <span className="text-zinc-300 inline-block mx-1"> + </span>
-        <span className="inline-block -skew-x-6 text-blue-500"> Next.js </span>
-      </h1>
+          {/* Attribute Sections */}
+          <AttributeSection
+            title="Background"
+            options={backgrounds}
+            selected={attributes.background}
+            onChange={(value) => updateAttribute("background", value)}
+          />
+          <AttributeSection
+            title="Top"
+            options={tops}
+            selected={attributes.top}
+            onChange={(value) => updateAttribute("top", value)}
+          />
+          <AttributeSection
+            title="Fur"
+            options={furs}
+            selected={attributes.fur}
+            onChange={(value) => updateAttribute("fur", value)}
+          />
+          <AttributeSection
+            title="Skin"
+            options={skins}
+            selected={attributes.skin}
+            onChange={(value) => updateAttribute("skin", value)}
+          />
+          <AttributeSection
+            title="Mouth"
+            options={mouths}
+            selected={attributes.mouth}
+            onChange={(value) => updateAttribute("mouth", value)}
+          />
+          <AttributeSection
+            title="Glasses"
+            options={glasses}
+            selected={attributes.glass}
+            onChange={(value) => updateAttribute("glass", value)}
+          />
+          <AttributeSection
+            title="Jewelry"
+            options={jewelry}
+            selected={attributes.jewel}
+            onChange={(value) => updateAttribute("jewel", value)}
+          />
 
-      <p className="text-zinc-300 text-base">
-        Read the{" "}
-        <code className="bg-zinc-800 text-zinc-300 px-2 rounded py-1 text-sm mx-1">
-          README.md
-        </code>{" "}
-        file to get started.
-      </p>
-    </header>
-  );
-}
+          {/* Mint Button */}
+          {isReadyToMint && (
+            <button
+              className={`w-full mt-6 px-4 py-2 bg-blue-600 text-white rounded-lg
+                ${isNftMinting ? 'opacity-50 cursor-not-allowed' : 'hover:bg-blue-700'}`}
+              onClick={handleMint}
+              disabled={isNftMinting}
+            >
+              {isNftMinting ? "Minting..." : "Mint NFT"}
+            </button>
+          )}
+        </div>
+      </div>
 
-function ThirdwebResources() {
-  return (
-    <div className="grid gap-4 lg:grid-cols-3 justify-center">
-      <ArticleCard
-        title="thirdweb SDK Docs"
-        href="https://portal.thirdweb.com/typescript/v5"
-        description="thirdweb TypeScript SDK documentation"
-      />
-
-      <ArticleCard
-        title="Components and Hooks"
-        href="https://portal.thirdweb.com/typescript/v5/react"
-        description="Learn about the thirdweb React components and hooks in thirdweb SDK"
-      />
-
-      <ArticleCard
-        title="thirdweb Dashboard"
-        href="https://thirdweb.com/dashboard"
-        description="Deploy, configure, and manage your smart contracts from the dashboard."
-      />
+      {/* Canvas Preview */}
+      <div className="w-full md:w-1/2 p-4">
+        <canvas
+          ref={canvasRef}
+          width={500}
+          height={500}
+          className="border border-gray-300 rounded-lg canvas-sticky"
+        />
+      </div>
     </div>
   );
 }
 
-function ArticleCard(props: {
+// Attribute Section Component
+interface AttributeSectionProps {
   title: string;
-  href: string;
-  description: string;
-}) {
+  options: string[];
+  selected: string;
+  onChange: (value: string) => void;
+}
+
+function AttributeSection({ title, options, selected, onChange }: AttributeSectionProps) {
   return (
-    <a
-      href={props.href + "?utm_source=next-template"}
-      target="_blank"
-      className="flex flex-col border border-zinc-800 p-4 rounded-lg hover:bg-zinc-900 transition-colors hover:border-zinc-700"
-    >
-      <article>
-        <h2 className="text-lg font-semibold mb-2">{props.title}</h2>
-        <p className="text-sm text-zinc-400">{props.description}</p>
-      </article>
-    </a>
+    <div className="mb-6">
+      <h3 className="text-lg font-semibold mb-2 text-white">{title}</h3>
+      <div className="grid grid-cols-3 gap-2">
+        {options.map((option) => (
+          <img
+            key={option}
+            src={option}
+            onClick={() => onChange(option)}
+            className={`cursor-pointer rounded-lg border-2 
+              ${selected === option ? 'border-blue-500' : 'border-transparent'}`}
+            alt={`${title} option`}
+          />
+        ))}
+      </div>
+    </div>
   );
 }

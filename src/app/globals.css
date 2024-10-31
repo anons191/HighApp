@@ -3,20 +3,166 @@
 @tailwind utilities;
 
 :root {
-	line-height: 1.5;
-	font-weight: 400;
-	font-synthesis: none;
-	text-rendering: optimizeLegibility;
-	-webkit-font-smoothing: antialiased;
-	-moz-osx-font-smoothing: grayscale;
-	font-family: 'Inter', sans-serif;
-	font-optical-sizing: auto;
-	font-style: normal;
-	font-variation-settings: 'slnt' 0;
+  --foreground-rgb: 255, 255, 255;
+  --background-start-rgb: 0, 0, 0;
+  --background-end-rgb: 0, 0, 0;
 }
 
-@layer base {
-	body {
-		@apply bg-zinc-950 text-neutral-200;
-	}
+body {
+  color: rgb(var(--foreground-rgb));
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    rgb(var(--background-end-rgb))
+  )
+  rgb(var(--background-start-rgb));
+  min-height: 100vh;
+}
+
+/* Container styles */
+.container {
+  @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+}
+
+/* Button styles */
+.button {
+  @apply inline-flex items-center px-4 py-2 rounded-md 
+    bg-blue-600 text-white font-medium 
+    hover:bg-blue-700 focus:outline-none focus:ring-2 
+    focus:ring-offset-2 focus:ring-blue-500 
+    disabled:opacity-50 disabled:cursor-not-allowed
+    transition-colors duration-200;
+}
+
+/* Canvas container styles */
+.canvas {
+  @apply bg-gray-900 rounded-lg p-4 shadow-xl;
+}
+.canvas-sticky {
+  @apply sticky top-4 border border-gray-300 rounded-lg;
+}
+
+/* Attribute section styles */
+.attributes {
+  @apply space-y-4 mb-6;
+}
+
+.attributes h3 {
+  @apply text-lg font-semibold text-white mb-2;
+}
+
+/* Image grid styles */
+.grid-container {
+  @apply grid grid-cols-3 gap-2;
+}
+
+/* Image selection styles */
+.image-option {
+  @apply cursor-pointer rounded-lg border-2 border-transparent
+    hover:border-blue-400 transition-all duration-200
+    hover:shadow-lg hover:scale-105;
+}
+
+.image-option.selected {
+  @apply border-blue-500 shadow-lg scale-105;
+}
+
+/* Loading/minting state styles */
+.minting {
+  @apply relative flex justify-center items-center;
+}
+
+.minting::after {
+  content: '';
+  @apply absolute w-5 h-5 border-2 border-white border-t-transparent
+    rounded-full animate-spin;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .container {
+    @apply px-4;
+  }
+  
+  .grid-container {
+    @apply grid-cols-2;
+  }
+}
+
+/* ScrollBar Styles */
+::-webkit-scrollbar {
+  @apply w-2;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-gray-800;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-gray-600 rounded-full;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-gray-500;
+}
+
+/* Animation for hover effects */
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.hover-pulse:hover {
+  animation: pulse 1s infinite;
+}
+
+/* Toast notification styles */
+.toast {
+  @apply fixed bottom-4 right-4 px-6 py-3 rounded-lg shadow-xl
+    transform transition-all duration-300 z-50;
+}
+
+.toast-success {
+  @apply bg-green-500 text-white;
+}
+
+.toast-error {
+  @apply bg-red-500 text-white;
+}
+
+/* Loading overlay styles */
+.loading-overlay {
+  @apply fixed inset-0 bg-black bg-opacity-50 
+    flex items-center justify-center z-50;
+}
+
+.loading-spinner {
+  @apply w-12 h-12 border-4 border-blue-500 border-t-transparent
+    rounded-full animate-spin;
+}
+
+/* Transitions */
+.fade-enter {
+  opacity: 0;
+}
+
+.fade-enter-active {
+  opacity: 1;
+  transition: opacity 200ms ease-in;
+}
+
+.fade-exit {
+  opacity: 1;
+}
+
+.fade-exit-active {
+  opacity: 0;
+  transition: opacity 200ms ease-in;
 }
