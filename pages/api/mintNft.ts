@@ -33,6 +33,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     const image = files.image ? (Array.isArray(files.image) ? files.image[0] : files.image) : null;
     const address = Array.isArray(fields.address) ? fields.address[0] : fields.address;
+    const attributes = Array.isArray(fields.attributes) 
+    ? JSON.parse(fields.attributes[0]) 
+    : fields.attributes 
+    ? JSON.parse(fields.attributes as string)
+    : {};
+  
 
     console.log('Image object:', image);
     console.log('Address:', address);
@@ -51,14 +57,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       TW_SECRETKEY 
     } = process.env;
 
-    console.log('Environment variables loaded:', {
-      TW_ENGINE_URL, 
-      TW_ACCESS_TOKEN, 
-      TW_BACKENDWALLET, 
-      TW_CONTRACT_ADDRESS, 
-      TW_SECRETKEY,
-    });
-    console.log('TW_ACCESS_TOKEN:', process.env.TW_ACCESS_TOKEN);
+  
 
     if (!TW_ENGINE_URL || !TW_ACCESS_TOKEN || !TW_BACKENDWALLET || !TW_CONTRACT_ADDRESS || !TW_SECRETKEY) {
       console.error('Missing environment variables');
@@ -83,15 +82,24 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         name: "High Monkey NFT",
         description: "This is a high monkey NFT",
         image: uri,
+        attributes: [
+          { trait_type: "Background", value: attributes.background },
+          { trait_type: "Top", value: attributes.top },
+          { trait_type: "Fur", value: attributes.fur },
+          { trait_type: "Skin", value: attributes.skin },
+          { trait_type: "Mouth", value: attributes.mouth },
+          { trait_type: "Glass", value: attributes.glass },
+          { trait_type: "Jewel", value: attributes.jewel },
+        ],
       };
-
-      console.log('Metadata:', metaData);
-
+      
+      
+      
       const engine = new Engine({
         url: TW_ENGINE_URL,
         accessToken: TW_ACCESS_TOKEN,
       });
-      console.log(TW_ACCESS_TOKEN)
+   
       console.log('Minting NFT...');
       const response = await engine.erc721.mintTo(
         "sepolia",

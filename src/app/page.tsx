@@ -9,6 +9,12 @@ import { client } from "./client";
 import { sepolia } from "thirdweb/chains";
 import { toWei } from "thirdweb/utils";
 import { useEffect, useRef, useState } from "react";
+import Confetti from "react-confetti";
+import { useWindowSize } from "react-use";
+// Helper function to get just the filename from the path
+const getFileName = (path: string) => {
+  return path.split('/').pop()?.split('.')[0] || ""; // Extracts filename without extension
+};
 
 
 // NFT Attribute Options
@@ -35,12 +41,45 @@ interface NFTAttributes {
 }
 
 export default function Home() {
+  const [audio, setAudio] = useState<HTMLAudioElement | null>(null);
+  const startMusic = () => {
+   if (audio && !audio.paused) {
+      // Pause and reset the audio if it's already playing
+      audio.pause();
+      setAudio(null); // Reset audio so it can be initialized again if needed
+    } else if (audio) {
+      // If the audio is initialized but paused, play it
+      audio.play().catch(error => console.error("Error playing music:", error));
+    } else {
+      // Initialize the audio when the user clicks the button and it's not yet set
+      const backgroundAudio = new Audio('./mp3/music_zapsplat_electric_drum_and_bass.mp3');
+      backgroundAudio.loop = true;
+      setAudio(backgroundAudio);
+  
+      // Play the audio
+      backgroundAudio.play().catch(error => console.error("Error playing music:", error));
+    }
+  };
+  
+  // Cleanup the audio on component unmount
+  useEffect(() => {
+    return () => {
+      if (audio) {
+        audio.pause();
+        audio.currentTime = 0;
+      }
+    };
+  }, [audio]);
+  
+  
   const wallet = useActiveWallet();
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const { mutate: sendAndConfirmTx } = useSendAndConfirmTransaction();
 
   // State Management
   const [isNftMinting, setNftMinting] = useState<boolean>(false);
+  const [showConfetti, setShowConfetti] = useState(false);
+  const { width, height } = useWindowSize(); 
   const [attributes, setAttributes] = useState<NFTAttributes>({
     background: "",
     top: "",
@@ -50,6 +89,13 @@ export default function Home() {
     glass: "",
     jewel: "",
   });
+
+  useEffect(() => {
+    setShowConfetti(true);
+    setTimeout(() => setShowConfetti(false), 3000); // Show confetti for 3 seconds
+  }, []);
+  
+
 
   // Helper function to load images safely
   const loadImage = (src: string): Promise<HTMLImageElement> => {
@@ -128,6 +174,17 @@ export default function Home() {
     formData.append("image", blob, "nft.png");
     formData.append("address", address);
 
+     // Add attribute data by stripping paths down to names
+  formData.append("attributes", JSON.stringify({
+    background: getFileName(attributes.background),
+    top: getFileName(attributes.top),
+    fur: getFileName(attributes.fur),
+    skin: getFileName(attributes.skin),
+    mouth: getFileName(attributes.mouth),
+    glass: getFileName(attributes.glass),
+    jewel: getFileName(attributes.jewel),
+  }));
+
     const response = await fetch("/api/mintNft", {
       method: "POST",
       body: formData,
@@ -179,7 +236,8 @@ const handleMint = async () => {
 
     // Send minting request
     await sendNftMintRequest(blob);
-
+    setShowConfetti(true); // Trigger confetti on success
+    setTimeout(() => setShowConfetti(false), 5000); // Hide confetti after 5 seconds
     alert("NFT minted successfully!");
   } catch (error) {
     console.error("Minting process failed:", error);
@@ -201,7 +259,7 @@ const handleMint = async () => {
 
   // Check if all attributes are selected
   const isReadyToMint = Object.values(attributes).every(value => value !== "");
-
+  
   // Render connect wallet button if no wallet is connected
   if (!wallet) {
     return (
@@ -220,14 +278,21 @@ const handleMint = async () => {
   // Main component render
   return (
     <div className="container mx-auto p-4 flex flex-wrap">
-      <div className="w-full md:w-1/2 p-4">
-        <div className="bg-gray-800 rounded-lg p-6">
-          <div className="mb-6">
-            <ConnectButton
-              client={client}
-              appMetadata={{ name: "High Monkey", url: "https://example.com" }}
-            />
-          </div>
+    {/* Render Confetti if showConfetti is true */}
+    {showConfetti && <Confetti width={width || 500} height={height || 500} />}
+
+
+    <div className="w-full md:w-1/2 p-4">
+      <div className="bg-gray-800 rounded-lg p-6">
+        <div className="mb-6">
+          <ConnectButton
+            client={client}
+            appMetadata={{ name: "High Monkey", url: "https://example.com" }}
+          />
+        </div>
+        <div>
+      <button onClick={startMusic}>Play Background Music</button>
+    </div>
 
           {/* Attribute Sections */}
           <AttributeSection
