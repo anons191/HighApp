@@ -24,6 +24,12 @@ body {
   @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
 }
 
+@media (max-width: 768px) {
+  .container {
+    @apply px-2; /* Reduce padding for smaller screens */
+  }
+}
+
 /* Button styles */
 .button {
   @apply inline-flex items-center px-4 py-2 rounded-md 
@@ -34,10 +40,17 @@ body {
     transition-colors duration-200;
 }
 
+@media (max-width: 768px) {
+  .button {
+    @apply px-3 py-1 text-sm; /* Adjust button size for mobile */
+  }
+}
+
 /* Canvas container styles */
 .canvas {
   @apply bg-gray-900 rounded-lg p-4 shadow-xl;
 }
+
 .canvas-sticky {
   @apply sticky top-4 border border-gray-300 rounded-lg;
 }
@@ -51,9 +64,27 @@ body {
   @apply text-lg font-semibold text-white mb-2;
 }
 
+@media (max-width: 768px) {
+  .attributes h3 {
+    @apply text-sm; /* Adjust heading size for mobile */
+  }
+}
+
 /* Image grid styles */
 .grid-container {
   @apply grid grid-cols-3 gap-2;
+}
+
+@media (max-width: 768px) {
+  .grid-container {
+    @apply grid-cols-2; /* 2 columns for tablets */
+  }
+}
+
+@media (max-width: 480px) {
+  .grid-container {
+    @apply grid-cols-1; /* Single column for smaller screens */
+  }
 }
 
 /* Image selection styles */
@@ -67,6 +98,12 @@ body {
   @apply border-blue-500 shadow-lg scale-105;
 }
 
+@media (max-width: 768px) {
+  .image-option {
+    @apply hover:scale-100; /* Simplify hover effects for mobile */
+  }
+}
+
 /* Loading/minting state styles */
 .minting {
   @apply relative flex justify-center items-center;
@@ -78,14 +115,26 @@ body {
     rounded-full animate-spin;
 }
 
-/* Responsive adjustments */
 @media (max-width: 768px) {
-  .container {
-    @apply px-4;
+  .minting::after {
+    @apply w-4 h-4; /* Adjust spinner size for mobile */
   }
-  
-  .grid-container {
-    @apply grid-cols-2;
+}
+
+/* Responsive adjustments for headings */
+h1, h2, h3 {
+  @apply text-lg font-semibold;
+}
+
+@media (max-width: 768px) {
+  h1 {
+    @apply text-base; /* Scale down headings */
+  }
+  h2 {
+    @apply text-sm;
+  }
+  h3 {
+    @apply text-xs;
   }
 }
 
@@ -106,23 +155,6 @@ body {
   @apply bg-gray-500;
 }
 
-/* Animation for hover effects */
-@keyframes pulse {
-  0% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.05);
-  }
-  100% {
-    transform: scale(1);
-  }
-}
-
-.hover-pulse:hover {
-  animation: pulse 1s infinite;
-}
-
 /* Toast notification styles */
 .toast {
   @apply fixed bottom-4 right-4 px-6 py-3 rounded-lg shadow-xl
@@ -137,6 +169,12 @@ body {
   @apply bg-red-500 text-white;
 }
 
+@media (max-width: 768px) {
+  .toast {
+    @apply bottom-2 right-2 px-4 py-2; /* Adjust position and padding for mobile */
+  }
+}
+
 /* Loading overlay styles */
 .loading-overlay {
   @apply fixed inset-0 bg-black bg-opacity-50 
@@ -146,6 +184,12 @@ body {
 .loading-spinner {
   @apply w-12 h-12 border-4 border-blue-500 border-t-transparent
     rounded-full animate-spin;
+}
+
+@media (max-width: 768px) {
+  .loading-spinner {
+    @apply w-8 h-8; /* Reduce size for mobile */
+  }
 }
 
 /* Transitions */

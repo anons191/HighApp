@@ -18,13 +18,13 @@ const getFileName = (path: string) => {
 
 
 // NFT Attribute Options
-const backgrounds = ["/images/BackgroundBeige.png", "/images/BackgroundGold.png", "/images/BackgroundGrey.png"];
-const tops = ["/images/HoodieBTC.png", "/images/HoodieLogo.png", "/images/ShirtHawaiian.png", "/images/SuitPurple.png"];
-const furs = ["/images/FurBlue.png", "/images/FurGold2.png", "/images/FurRed.png", "/images/FurGreen.png"];
+const backgrounds = ["/images/BackgroundBeige.png", "/images/BackgroundGold.png", "/images/BackgroundGrey.png","/images/BackgroundMatrix.png","/images/BackgroundBlueDream.png","/images/BackgroundPurpleHaze.png","/images/BackgroundNinjaCat.png"];
+const tops = ["/images/HoodieBTC.png", "/images/HoodieLogo.png", "/images/ShirtHawaiian.png", "/images/SuitPurple.png","/images/HoodieFreeRoss.png","/images/SuitGold2.png","/images/RobeWizard.png"];
+const furs = ["/images/FurBlue.png", "/images/FurGold2.png", "/images/FurRed.png", "/images/FurGreen.png","/images/FurOrange.png","/images/FurPink.png","/images/FurPurple.png"];
 const skins = [ "/images/SkinGold.png", "/images/SkinNatural.png", "/images/SkinZombie.png"];
-const mouths = ["/images/MouthBlunt.png", "/images/MouthGoldGrill.png", "/images/MouthTongue.png",];
-const glasses = ["/images/Eyepatch.png", "/images/Glasses3D.png", "/images/GlassesAviator.png", "/images/GlassesHeart.png", "/images/GlassesPurpleRound.png", "/images/GlassesYeezy.png"];
-const jewelry = ["/images/GMZombie.png", "/images/GoldGM.png", "/images/GoldHoopEarring.png"];
+const mouths = ["/images/MouthBlunt.png", "/images/MouthGoldGrill.png", "/images/MouthTongue.png","/images/MaskGuyFawkes.png"];
+const glasses = ["/images/Eyepatch.png", "/images/Glasses3D.png", "/images/GlassesAviator.png", "/images/GlassesHeart.png", "/images/GlassesPurpleRound.png", "/images/GlassesYeezy.png","/images/GlassesMonocle.png"];
+const jewelry = ["/images/GMZombie.png", "/images/GoldGM.png", "/images/GoldHoopEarring.png","/images/HatWizard.png","/images/HeadbandNinjaCat.png"];
 
 // Configuration
 const WALLET_ADDRESS = "0x575A9960be5f23C8E8aF7F9C8712A539eB255bE6";
@@ -42,24 +42,34 @@ interface NFTAttributes {
 
 export default function Home() {
   const [audio, setAudio] = useState<HTMLAudioElement | null>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+
   const startMusic = () => {
-   if (audio && !audio.paused) {
-      // Pause and reset the audio if it's already playing
+    if (isPlaying && audio) {
+      // Pause the audio and update the state
       audio.pause();
-      setAudio(null); // Reset audio so it can be initialized again if needed
+      setIsPlaying(false);
     } else if (audio) {
-      // If the audio is initialized but paused, play it
-      audio.play().catch(error => console.error("Error playing music:", error));
+      // Resume playback and update the state
+      audio
+        .play()
+        .then(() => setIsPlaying(true))
+        .catch(error => console.error("Error playing music:", error));
     } else {
-      // Initialize the audio when the user clicks the button and it's not yet set
+      // Initialize a new audio instance if none exists
       const backgroundAudio = new Audio('./mp3/music_zapsplat_electric_drum_and_bass.mp3');
-      backgroundAudio.loop = true;
+      backgroundAudio.loop = true; // Enable looping
       setAudio(backgroundAudio);
   
-      // Play the audio
-      backgroundAudio.play().catch(error => console.error("Error playing music:", error));
+      // Play the audio and update the state
+      backgroundAudio
+        .play()
+        .then(() => setIsPlaying(true))
+        .catch(error => console.error("Error playing music:", error));
     }
   };
+  
+  
   
   // Cleanup the audio on component unmount
   useEffect(() => {
@@ -126,9 +136,9 @@ export default function Home() {
           attributes.top,
           attributes.fur,
           attributes.skin,
-          attributes.mouth,
           attributes.glass,
           attributes.jewel,
+          attributes.mouth,
         ];
 
         const images = await Promise.all(imageSources.map(loadImage));
@@ -291,7 +301,14 @@ const handleMint = async () => {
           />
         </div>
         <div>
-      <button onClick={startMusic}>Play Background Music</button>
+                <button 
+          onClick={startMusic} 
+          className={`button ${isPlaying ? 'pause-button' : 'play-button'}`}
+          aria-label={isPlaying ? "Pause Background Music" : "Play Background Music"}
+        >
+          {isPlaying ? '❚❚' : '▶'}
+        </button>
+
     </div>
 
           {/* Attribute Sections */}
