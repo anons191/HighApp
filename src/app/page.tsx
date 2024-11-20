@@ -68,7 +68,27 @@ export default function Home() {
         .catch(error => console.error("Error playing music:", error));
     }
   };
+    
+
+  // Twitter Sharing Function
+  const handleTwitterShare = (nftName: string, ipfsUri: string): void => {
+    // Convert IPFS URI to a web-accessible HTTP URL
+    const ipfsHttpUrl = ipfsUri.replace("ipfs://", "https://ipfs.io/ipfs/");
   
+    // Prepare Twitter share URL
+    const tweetText = encodeURIComponent(`I just minted a test net${nftName}! Check it out:`);
+    const url = encodeURIComponent(ipfsHttpUrl); // Use the HTTP URL here
+    const hashtags = encodeURIComponent("HighMonkey,NFT,Web3");
+  
+    const twitterShareUrl = `https://twitter.com/intent/tweet?text=${tweetText}&url=${url}&hashtags=${hashtags}`;
+  
+    console.log("Twitter share URL:", twitterShareUrl); // Log for debugging
+    window.open(twitterShareUrl, "_blank"); // Open the Twitter share URL
+  };
+  
+
+
+
   
   
   // Cleanup the audio on component unmount
@@ -172,7 +192,7 @@ export default function Home() {
   };
 
   // Send NFT mint request to backend
-  const sendNftMintRequest = async (blob: Blob): Promise<any> => {
+  const sendNftMintRequest = async (blob: Blob): Promise<{ ipfsUri: string }> => {
     const account = wallet?.getAccount();
     const address = account?.address;
     
@@ -205,62 +225,79 @@ export default function Home() {
     if (!response.ok) {
       throw new Error(data.message || "NFT minting failed");
     }
+    console.log("Response from backend:", response);
 
     return data;
   };
 
   // Handle the minting process
-const handleMint = async () => {
-  if (!wallet) {
-    alert("Please connect your wallet first");
-    return;
-  }
-
-  setNftMinting(true);
-
-  try {
-    // Prepare payment transaction
-    const tx = {
-      to: WALLET_ADDRESS,
-      value: toWei(MINT_PRICE),
-      chain: sepolia,
-      client: client,
-    };
-
-    // Send payment and wait for confirmation
-    await new Promise((resolve, reject) => {
-      sendAndConfirmTx(tx, {
-        onSuccess: (receipt) => {
-          console.log("Payment confirmed!", receipt);
-          resolve(receipt);
-        },
-        onError: (txError) => {
-          console.error("Transaction failed:", txError);
-          reject(new Error("Payment failed or was rejected"));
-        },
+  const handleMint = async () => {
+    if (!wallet) {
+      alert("Please connect your wallet first");
+      return;
+    }
+  
+    setNftMinting(true);
+  
+    try {
+      // Step 1: Prepare payment transaction
+      const tx = {
+        to: WALLET_ADDRESS,
+        value: toWei(MINT_PRICE),
+        chain: sepolia,
+        client: client,
+      };
+  
+      // Step 2: Send payment and wait for confirmation
+      await new Promise((resolve, reject) => {
+        sendAndConfirmTx(tx, {
+          onSuccess: (receipt) => {
+            console.log("Payment confirmed!", receipt); // Log payment receipt
+            resolve(receipt); // Resolve the promise on success
+          },
+          onError: (txError) => {
+            console.error("Transaction failed:", txError); // Log transaction error
+            reject(new Error("Payment failed or was rejected")); // Reject the promise
+          },
+        });
       });
-    });
-
-    // Convert canvas to blob
-    const blob = await convertCanvasToBlob();
-
-    // Send minting request
-    await sendNftMintRequest(blob);
-    setShowConfetti(true); // Trigger confetti on success
-    setTimeout(() => setShowConfetti(false), 5000); // Hide confetti after 5 seconds
-    alert("NFT minted successfully!");
-  } catch (error) {
-    console.error("Minting process failed:", error);
-
-    const message = error instanceof Error
-      ? error.message
-      : "An unknown error occurred during the minting process";
-
-    alert(`Minting failed: ${message}`);
-  } finally {
-    setNftMinting(false);
-  }
-};
+  
+      // Step 3: Convert the canvas content to a Blob
+      const blob = await convertCanvasToBlob();
+  
+      // Step 4: Send minting request and retrieve IPFS URI
+      const response = await sendNftMintRequest(blob); // Send the blob to the backend
+      const ipfsUri = response.ipfsUri; // Extract the IPFS URI from the response
+  
+      if (!ipfsUri) {
+        throw new Error("IPFS URI not returned by the backend."); // Throw error if IPFS URI is missing
+      }
+  
+      // Step 5: Share the minted NFT on Twitter
+      const nftName = "High Monkey NFT"; // Define the name of the NFT (can be dynamic)
+      handleTwitterShare(nftName, ipfsUri); // Call the sharing function with the name and URI
+  
+      // Step 6: Trigger confetti for success
+      setShowConfetti(true); // Show confetti animation
+      setTimeout(() => setShowConfetti(false), 5000); // Hide confetti after 5 seconds
+  
+      alert("NFT minted successfully!"); // Notify the user
+    } catch (error) {
+      console.error("Minting process failed:", error); // Log the error
+  
+      // Provide a user-friendly error message
+      const message =
+        error instanceof Error
+          ? error.message
+          : "An unknown error occurred during the minting process";
+  
+      alert(`Minting failed: ${message}`);
+    } finally {
+      // Step 7: Reset the minting state
+      setNftMinting(false); // Ensure the state is reset even if an error occurs
+    }
+  };
+  
 
   // Update individual attributes
   const updateAttribute = (key: keyof NFTAttributes, value: string) => {
