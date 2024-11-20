@@ -23,7 +23,7 @@ const tops = ["/images/HoodieBTC.png", "/images/HoodieLogo.png", "/images/ShirtH
 const furs = ["/images/FurBlue.png", "/images/FurGold2.png", "/images/FurRed.png", "/images/FurGreen.png","/images/FurOrange.png","/images/FurPink.png","/images/FurPurple.png"];
 const skins = [ "/images/SkinGold.png", "/images/SkinNatural.png", "/images/SkinZombie.png"];
 const mouths = ["/images/MouthBlunt.png", "/images/MouthGoldGrill.png", "/images/MouthTongue.png","/images/MaskGuyFawkes.png"];
-const glasses = ["/images/Eyepatch.png", "/images/Glasses3D.png", "/images/GlassesAviator.png", "/images/GlassesHeart.png", "/images/GlassesPurpleRound.png", "/images/GlassesYeezy.png","/images/GlassesMonocle.png"];
+const glasses = ["/images/Eyepatch.png", "/images/Glasses3D.png", "/images/GlassesAviator.png", "/images/GlassesHeart.png", "/images/GlassesPurpleRound.png", "/images/GlassesYeezy.png","/images/GlassesMonocle.png","/images/GlassesTang.png"];
 const jewelry = ["/images/GMZombie.png", "/images/GoldGM.png", "/images/GoldHoopEarring.png","/images/HatWizard.png","/images/HeadbandNinjaCat.png"];
 
 // Configuration
