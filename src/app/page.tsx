@@ -6,7 +6,7 @@ import {
   useSendAndConfirmTransaction,
 } from "thirdweb/react";
 import { client } from "./client";
-import { sepolia } from "thirdweb/chains";
+import { sepolia, base } from "thirdweb/chains";
 import { toWei } from "thirdweb/utils";
 import { useEffect, useRef, useState } from "react";
 import Confetti from "react-confetti";
@@ -18,13 +18,14 @@ const getFileName = (path: string) => {
 
 
 // NFT Attribute Options
-const backgrounds = ["/images/BackgroundBeige.png", "/images/BackgroundGold.png", "/images/BackgroundGrey.png","/images/BackgroundMatrix.png","/images/BackgroundBlueDream.png","/images/BackgroundPurpleHaze.png","/images/BackgroundNinjaCat.png"];
-const tops = ["/images/HoodieBTC.png", "/images/HoodieLogo.png", "/images/ShirtHawaiian.png", "/images/SuitPurple.png","/images/HoodieFreeRoss.png","/images/SuitGold2.png","/images/RobeWizard.png"];
-const furs = ["/images/FurBlue.png", "/images/FurGold2.png", "/images/FurRed.png", "/images/FurGreen.png","/images/FurOrange.png","/images/FurPink.png","/images/FurPurple.png"];
-const skins = [ "/images/SkinGold.png", "/images/SkinNatural.png", "/images/SkinZombie.png"];
-const mouths = ["/images/MouthBlunt.png", "/images/MouthGoldGrill.png", "/images/MouthTongue.png","/images/MaskGuyFawkes.png"];
-const glasses = ["/images/Eyepatch.png", "/images/Glasses3D.png", "/images/GlassesAviator.png", "/images/GlassesHeart.png", "/images/GlassesPurpleRound.png", "/images/GlassesYeezy.png","/images/GlassesMonocle.png","/images/GlassesTang.png"];
-const jewelry = ["/images/GMZombie.png", "/images/GoldGM.png", "/images/GoldHoopEarring.png","/images/HatWizard.png","/images/HeadbandNinjaCat.png"];
+const backgrounds = ["/images/BackgroundBeige.png", "/images/BackgroundGold.png", "/images/BackgroundGrey.png","/images/BackgroundMatrix.png","/images/BackgroundBlueDream.png","/images/BackgroundPurpleHaze.png","/images/BackgroundNinjaCat.png","/images/backgroundPlatinum.png"];
+const tops = ["/images/HoodieBTC.png", "/images/HoodieLogo.png", "/images/ShirtHawaiian.png", "/images/SuitPurple.png","/images/HoodieFreeRoss.png","/images/SuitGold2.png","/images/RobeWizard.png","/images/SuitPlatinum.png"];
+const furs = ["/images/FurBlue.png", "/images/FurGold2.png", "/images/FurRed.png", "/images/FurGreen.png","/images/FurOrange.png","/images/FurPink.png","/images/FurPurple.png","/images/FurPlatinum.png"];
+const skins = [ "/images/SkinGold.png", "/images/SkinNatural.png", "/images/SkinZombie.png","/images/SkinPlatinum.png"];
+const mouths = ["/images/MouthBlunt.png", "/images/MouthGoldGrill.png", "/images/MouthTongue.png","/images/MaskGuyFawkes.png","/images/MouthPlatinumGrill.png"];
+const glasses = ["None","/images/Eyepatch.png", "/images/Glasses3D.png", "/images/GlassesAviator.png", "/images/GlassesHeart.png", "/images/GlassesPurpleRound.png", "/images/GlassesYeezy.png","/images/GlassesMonocle.png","/images/GlassesTang.png","/images/GlassesBlueSilver.png"];
+const jewelry = ["None", "/images/GMZombie.png", "/images/GoldGM.png", "/images/GoldHoopEarring.png", "/images/HatWizard.png", "/images/HeadbandNinjaCat.png", "/images/CrownGold.png", "/images/CrownPlatinum.png"];
+
 
 // Configuration
 const WALLET_ADDRESS = "0x575A9960be5f23C8E8aF7F9C8712A539eB255bE6";
@@ -130,8 +131,8 @@ export default function Home() {
   // Helper function to load images safely
   const loadImage = (src: string): Promise<HTMLImageElement> => {
     return new Promise((resolve, reject) => {
-      if (!src) {
-        resolve(new Image()); // Return empty image for empty sources
+      if (!src || src === "None") {
+        resolve(new Image()); // Return an empty image for "None"
         return;
       }
       const img = new Image();
@@ -140,6 +141,7 @@ export default function Home() {
       img.onerror = () => reject(new Error(`Failed to load image: ${src}`));
     });
   };
+  
 
   // Update canvas when attributes change
   useEffect(() => {
@@ -205,16 +207,15 @@ export default function Home() {
     formData.append("address", address);
 
      // Add attribute data by stripping paths down to names
-  formData.append("attributes", JSON.stringify({
-    background: getFileName(attributes.background),
-    top: getFileName(attributes.top),
-    fur: getFileName(attributes.fur),
-    skin: getFileName(attributes.skin),
-    mouth: getFileName(attributes.mouth),
-    glass: getFileName(attributes.glass),
-    jewel: getFileName(attributes.jewel),
-  }));
-
+     formData.append("background", getFileName(attributes.background));
+     formData.append("top", getFileName(attributes.top));
+     formData.append("fur", getFileName(attributes.fur));
+     formData.append("skin", getFileName(attributes.skin));
+     formData.append("mouth", getFileName(attributes.mouth));
+     formData.append("glass", getFileName(attributes.glass));
+     formData.append("jewel", getFileName(attributes.jewel));
+     
+      
     const response = await fetch("/api/mintNft", {
       method: "POST",
       body: formData,
@@ -242,8 +243,11 @@ export default function Home() {
     try {
       // Step 1: Prepare payment transaction
       const tx = {
+        //where the nft lands
         to: WALLET_ADDRESS,
+        // turns price into wei
         value: toWei(MINT_PRICE),
+        // chain in use
         chain: sepolia,
         client: client,
       };
@@ -386,7 +390,7 @@ export default function Home() {
             onChange={(value) => updateAttribute("glass", value)}
           />
           <AttributeSection
-            title="Jewelry"
+            title="Extras"
             options={jewelry}
             selected={attributes.jewel}
             onChange={(value) => updateAttribute("jewel", value)}
@@ -433,14 +437,24 @@ function AttributeSection({ title, options, selected, onChange }: AttributeSecti
       <h3 className="text-lg font-semibold mb-2 text-white">{title}</h3>
       <div className="grid grid-cols-3 gap-2">
         {options.map((option) => (
-          <img
+          <div
             key={option}
-            src={option}
             onClick={() => onChange(option)}
-            className={`cursor-pointer rounded-lg border-2 
-              ${selected === option ? 'border-blue-500' : 'border-transparent'}`}
-            alt={`${title} option`}
-          />
+            className={`cursor-pointer rounded-lg border-2 flex items-center justify-center
+              ${selected === option ? 'border-blue-500' : 'border-transparent'}
+              ${option === "None" ? "bg-gray-700 text-white" : ""}`}
+            style={{ height: "100px", width: "100px" }}
+          >
+            {option === "None" ? (
+              <span>None</span> // Render "None" text
+            ) : (
+              <img
+                src={option}
+                alt={`${title} option`}
+                className="rounded-lg"
+              />
+            )}
+          </div>
         ))}
       </div>
     </div>
