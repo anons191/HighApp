@@ -1,5 +1,5 @@
 "use client";
-
+import { getContract, readContract } from "thirdweb";
 import {
   ConnectButton,
   useActiveWallet,
@@ -30,6 +30,8 @@ const jewelry = ["None", "/images/GMZombie.png", "/images/GoldGM.png", "/images/
 // Configuration
 const WALLET_ADDRESS = "0x575A9960be5f23C8E8aF7F9C8712A539eB255bE6";
 const MINT_PRICE = "0.0001"; // ETH
+const MAX_SUPPLY = 1000; // Set your max supply here
+const CONTRACT_ADDRESS = "0x879175bCCFBC86594b2Ba41aFBeF9C08a7d36b4b" ;
 
 interface NFTAttributes {
   background: string;
@@ -44,6 +46,38 @@ interface NFTAttributes {
 export default function Home() {
   const [audio, setAudio] = useState<HTMLAudioElement | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [totalMinted, setTotalMinted] = useState<number>(0);
+  const [isMaxSupplyReached, setIsMaxSupplyReached] = useState<boolean>(false);
+
+
+
+  // Fetch the total minted count
+  const fetchTotalMinted = async () => {
+    try {
+      const contract = await getContract({
+        client,
+        address: CONTRACT_ADDRESS,
+        chain: sepolia,
+      });
+
+      const totalSupply = await readContract({
+        contract,
+        method: "function totalSupply() view returns (uint256)",
+        params: [],
+      });
+
+      const minted = Number(totalSupply);
+      setTotalMinted(minted);
+      setIsMaxSupplyReached(minted >= MAX_SUPPLY);
+    } catch (error) {
+      console.error("Error fetching total supply:", error);
+      alert("Failed to fetch total supply. Please try again later.");
+    }
+  };
+
+  useEffect(() => {
+    fetchTotalMinted();
+  }, []);
 
   const startMusic = () => {
     if (isPlaying && audio) {
@@ -193,6 +227,10 @@ export default function Home() {
     });
   };
 
+ 
+
+
+
   // Send NFT mint request to backend
   const sendNftMintRequest = async (blob: Blob): Promise<{ ipfsUri: string }> => {
     const account = wallet?.getAccount();
@@ -238,6 +276,11 @@ export default function Home() {
       return;
     }
   
+    if (isMaxSupplyReached) {
+      alert("Max supply reached. No more NFTs can be minted.");
+      return;
+    }
+
     setNftMinting(true);
   
     try {
@@ -328,6 +371,7 @@ export default function Home() {
 
   // Main component render
   return (
+    
     <div className="container mx-auto p-4 flex flex-wrap">
     {/* Render Confetti if showConfetti is true */}
     {showConfetti && <Confetti width={width || 500} height={height || 500} />}
@@ -399,29 +443,38 @@ export default function Home() {
           {/* Mint Button */}
           {isReadyToMint && (
             <button
-              className={`w-full mt-6 px-4 py-2 bg-blue-600 text-white rounded-lg
-                ${isNftMinting ? 'opacity-50 cursor-not-allowed' : 'hover:bg-blue-700'}`}
-              onClick={handleMint}
-              disabled={isNftMinting}
-            >
-              {isNftMinting ? "Minting..." : "Mint NFT"}
-            </button>
+            className={`w-full mt-6 px-4 py-2 bg-blue-600 text-white rounded-lg
+              ${isNftMinting || isMaxSupplyReached ? 'opacity-50 cursor-not-allowed' : 'hover:bg-blue-700'}`}
+            onClick={handleMint}
+            disabled={isNftMinting || isMaxSupplyReached}
+          >
+            {isMaxSupplyReached ? "Sold Out" : isNftMinting ? "Minting..." : "Mint NFT"}
+          </button>
+          
           )}
         </div>
       </div>
 
       {/* Canvas Preview */}
-      <div className="w-full md:w-1/2 p-4">
-        <canvas
-          ref={canvasRef}
-          width={500}
-          height={500}
-          className="border border-gray-300 rounded-lg canvas-sticky"
-        />
-      </div>
-    </div>
+<div className="w-full md:w-1/2 p-4">
+  <canvas
+    ref={canvasRef}
+    width={500}
+    height={500}
+    className="border border-gray-300 rounded-lg canvas-sticky"
+  />
+</div>
+
+{/* Total Minted Display */}
+<div className="text-center text-white text-2xl mt-6">
+  Total Minted: {totalMinted} / {MAX_SUPPLY}
+</div>
+
+</div>
   );
 }
+
+
 
 // Attribute Section Component
 interface AttributeSectionProps {
@@ -458,5 +511,6 @@ function AttributeSection({ title, options, selected, onChange }: AttributeSecti
         ))}
       </div>
     </div>
+    
   );
 }
