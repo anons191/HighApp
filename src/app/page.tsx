@@ -12,19 +12,21 @@ import { useEffect, useRef, useState } from "react";
 import Confetti from "react-confetti";
 import { useWindowSize } from "react-use";
 // Helper function to get just the filename from the path
-const getFileName = (path: string) => {
+const getFileName = (path: string | string[]) => {
+  if (Array.isArray(path)) {
+    path = path[0]; // Take the first element if it's an array
+  }
   return path.split('/').pop()?.split('.')[0] || ""; // Extracts filename without extension
 };
 
-
 // NFT Attribute Options
 const backgrounds = ["/images/BackgroundBeige.png", "/images/BackgroundGold.png", "/images/BackgroundGrey.png","/images/BackgroundMatrix.png","/images/BackgroundBlueDream.png","/images/BackgroundPurpleHaze.png","/images/BackgroundNinjaCat.png","/images/backgroundPlatinum.png"];
-const tops = ["/images/HoodieBTC.png", "/images/HoodieLogo.png", "/images/ShirtHawaiian.png", "/images/SuitPurple.png","/images/HoodieFreeRoss.png","/images/SuitGold2.png","/images/RobeWizard.png","/images/SuitPlatinum.png"];
+const tops = ["/images/HoodieBTC.png", "/images/HoodieLogo.png", "/images/ShirtTang.png", "/images/SuitPurple.png","/images/HoodieFreeRoss.png","/images/SuitGold2.png","/images/RobeWizard.png","/images/SuitPlatinum.png"];
 const furs = ["/images/FurBlue.png", "/images/FurGold2.png", "/images/FurRed.png", "/images/FurGreen.png","/images/FurOrange.png","/images/FurPink.png","/images/FurPurple.png","/images/FurPlatinum.png"];
 const skins = [ "/images/SkinGold.png", "/images/SkinNatural.png", "/images/SkinZombie.png","/images/SkinPlatinum.png"];
-const mouths = ["/images/MouthBlunt.png", "/images/MouthGoldGrill.png", "/images/MouthTongue.png","/images/MaskGuyFawkes.png","/images/MouthPlatinumGrill.png"];
-const glasses = ["None","/images/Eyepatch.png", "/images/Glasses3D.png", "/images/GlassesAviator.png", "/images/GlassesHeart.png", "/images/GlassesPurpleRound.png", "/images/GlassesYeezy.png","/images/GlassesMonocle.png","/images/GlassesTang.png","/images/GlassesBlueSilver.png"];
-const jewelry = ["None", "/images/GMZombie.png", "/images/GoldGM.png", "/images/GoldHoopEarring.png", "/images/HatWizard.png", "/images/HeadbandNinjaCat.png", "/images/CrownGold.png", "/images/CrownPlatinum.png"];
+const mouths = ["/images/MouthBlunt.png", "/images/MouthGoldGrill.png", "/images/MouthTongue.png","/images/MaskGuyFawkes.png","/images/MouthPlatinumGrill.png","/images/USAMask.png"];
+const glasses = ["None","/images/Eyepatch.png", "/images/Glasses3D.png", "/images/GlassesAviator.png", "/images/GlassesHeart.png", "/images/GlassesPurpleRound.png", "/images/GlassesYeezy.png","/images/GlassesMonocle.png","/images/GlassesTang.png","/images/GlassesBlueSilver.png","/images/GlassesBase.png"];
+const extra = ["None", "/images/CupBrettGoldJava2.png", "/images/EarringHex.png", "/images/GoldHoopEarring.png", "/images/HatWizard.png", "/images/HeadbandNinjaCat.png", "/images/CrownGold.png", "/images/CrownPlatinum.png","/images/GMGold02.png","/images/GMPlatinum.png","/images/GMZombie02.png","/images/HoopEarringSilver.png"];
 
 
 // Configuration
@@ -40,7 +42,7 @@ interface NFTAttributes {
   skin: string;
   mouth: string;
   glass: string;
-  jewel: string;
+  extra: string;
 }
 
 export default function Home() {
@@ -79,6 +81,17 @@ export default function Home() {
     fetchTotalMinted();
   }, []);
 
+  const songs = [
+    './mp3/YoungPeezyGlobal.mp3',
+    './mp3/freedompeezy.wav',
+    './mp3/pezzynicewithit.mp3',
+    './mp3/YoungPeezymiliestobillies.mp3',
+    './mp3/YoungPeezyValhalla.mp3',
+    './mp3/YoungPeezywaitisover.mp3',
+  ]; // Array of song URLsurrentSongIndex, setCurrentSongIndex] = useState(0); // Track current song
+  const [currentSongIndex, setCurrentSongIndex] = useState(0); // Track current song
+  
+  
   const startMusic = () => {
     if (isPlaying && audio) {
       // Pause the audio and update the state
@@ -89,19 +102,53 @@ export default function Home() {
       audio
         .play()
         .then(() => setIsPlaying(true))
-        .catch(error => console.error("Error playing music:", error));
+        .catch((error) => console.error("Error playing music:", error));
     } else {
       // Initialize a new audio instance if none exists
-      const backgroundAudio = new Audio('./mp3/music_zapsplat_electric_drum_and_bass.mp3');
-      backgroundAudio.loop = true; // Enable looping
+      const backgroundAudio = new Audio(songs[currentSongIndex]);
+      backgroundAudio.loop = false; // Disable looping to allow cycling
+  
+      // Set up the 'ended' event listener to play the next song
+      backgroundAudio.addEventListener('ended', playNextSong);
+  
       setAudio(backgroundAudio);
   
       // Play the audio and update the state
       backgroundAudio
         .play()
         .then(() => setIsPlaying(true))
-        .catch(error => console.error("Error playing music:", error));
+        .catch((error) => console.error("Error playing music:", error));
     }
+  };
+  
+  const playNextSong = () => {
+    if (audio) {
+      audio.pause(); // Stop the current audio
+      audio.removeEventListener('ended', playNextSong); // Remove previous event listener
+    }
+  
+    // Increment the song index, cycling back to the first song if at the end
+    const nextIndex = (currentSongIndex + 1) % songs.length;
+    setCurrentSongIndex(nextIndex);
+  
+    const nextAudio = new Audio(songs[nextIndex]);
+    nextAudio.loop = false; // Disable looping for the new song
+  
+    // Set up the 'ended' event listener for the new audio
+    nextAudio.addEventListener('ended', playNextSong);
+  
+    setAudio(nextAudio);
+  
+    nextAudio
+      .play()
+      .then(() => setIsPlaying(true))
+      .catch((error) => console.error("Error playing next song:", error));
+  };
+  
+  // Display the current song
+  const getCurrentSongName = () => {
+    // Extract just the file name from the path
+    return songs[currentSongIndex].split('/').pop();
   };
     
 
@@ -152,7 +199,7 @@ export default function Home() {
     skin: "",
     mouth: "",
     glass: "",
-    jewel: "",
+    extra: "",
   });
 
   useEffect(() => {
@@ -193,7 +240,7 @@ export default function Home() {
           attributes.fur,
           attributes.skin,
           attributes.glass,
-          attributes.jewel,
+          attributes.extra,
           attributes.mouth,
         ];
 
@@ -251,7 +298,8 @@ export default function Home() {
      formData.append("skin", getFileName(attributes.skin));
      formData.append("mouth", getFileName(attributes.mouth));
      formData.append("glass", getFileName(attributes.glass));
-     formData.append("jewel", getFileName(attributes.jewel));
+     formData.append("extra", getFileName(attributes.extra));
+     
      
       
     const response = await fetch("/api/mintNft", {
@@ -385,15 +433,29 @@ export default function Home() {
             appMetadata={{ name: "High Monkey", url: "https://example.com" }}
           />
         </div>
+        <div className="flex justify-between mb-6">
         <div>
-                <button 
-          onClick={startMusic} 
-          className={`button ${isPlaying ? 'pause-button' : 'play-button'}`}
-          aria-label={isPlaying ? "Pause Background Music" : "Play Background Music"}
-        >
-          {isPlaying ? '❚❚' : '▶'}
-        </button>
+    <div>
+    <p>
+  Now Playing: <a href='https://youngpeezyonbase.com/' target="_blank" rel="noopener noreferrer">{getCurrentSongName()}</a>
+</p>
 
+    </div>
+    <button 
+      onClick={startMusic} 
+      className={`button ${isPlaying ? 'pause-button' : 'play-button'}`}
+      aria-label={isPlaying ? "Pause Background Music" : "Play Background Music"}
+    >
+      {isPlaying ? '❚❚' : '▶'}
+    </button>
+    <button 
+      onClick={playNextSong} 
+      className="button next-button"
+      aria-label="Play Next Song"
+    >
+      Next
+    </button>
+  </div>
     </div>
 
           {/* Attribute Sections */}
@@ -435,9 +497,9 @@ export default function Home() {
           />
           <AttributeSection
             title="Extras"
-            options={jewelry}
-            selected={attributes.jewel}
-            onChange={(value) => updateAttribute("jewel", value)}
+            options={extra}
+            selected={attributes.extra}
+            onChange={(value) => updateAttribute("extra", value)}
           />
 
           {/* Mint Button */}
@@ -456,14 +518,15 @@ export default function Home() {
       </div>
 
       {/* Canvas Preview */}
-<div className="w-full md:w-1/2 p-4">
-  <canvas
-    ref={canvasRef}
-    width={500}
-    height={500}
-    className="border border-gray-300 rounded-lg canvas-sticky"
-  />
-</div>
+      
+    <div className="w-full md:w-1/2 p-4">
+      <canvas
+        ref={canvasRef}
+        width={500}
+        height={500}
+        className="border border-gray-300 rounded-lg canvas-sticky"
+      />
+    </div>
 
 {/* Total Minted Display */}
 <div className="text-center text-white text-2xl mt-6">

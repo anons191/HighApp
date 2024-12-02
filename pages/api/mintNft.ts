@@ -15,11 +15,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   if (req.method !== "POST") {
     res.status(405).json({ message: "Method Not Allowed" });
-    return; // Stop execution for invalid HTTP methods
+    return;
   }
 
   const form = new IncomingForm();
- 
 
   form.parse(req, async (err, fields, files) => {
     if (err) {
@@ -28,12 +27,22 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return;
     }
 
+    const getFieldValue = (field: any) => (Array.isArray(field) ? field[0] : field) || "Unknown";
+
+    // Extract cleaned field values
     const image = files.image ? (Array.isArray(files.image) ? files.image[0] : files.image) : null;
-    const address = Array.isArray(fields.address) ? fields.address[0] : fields.address;
+    const address = getFieldValue(fields.address);
+    const background = getFieldValue(fields.background);
+    const top = getFieldValue(fields.top);
+    const fur = getFieldValue(fields.fur);
+    const skin = getFieldValue(fields.skin);
+    const mouth = getFieldValue(fields.mouth);
+    const glass = getFieldValue(fields.glass);
+    const extra = getFieldValue(fields.extra);
 
     if (!image || !address) {
       res.status(400).json({ message: "Missing image or address in the request" });
-      return; // Stop execution if required data is missing
+      return;
     }
 
     const {
@@ -63,15 +72,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         description: "This is a high monkey NFT",
         image: uri,
         attributes: [
-          { trait_type: "Background", value: fields.background || "Unknown" },
-          { trait_type: "Top", value: fields.top || "Unknown" },
-          { trait_type: "Fur", value: fields.fur || "Unknown" },
-          { trait_type: "Skin", value: fields.skin || "Unknown" },
-          { trait_type: "Mouth", value: fields.mouth || "Unknown" },
-          { trait_type: "Glass", value: fields.glass || "Unknown" },
-          { trait_type: "Jewel", value: fields.jewel || "Unknown" },
+          { trait_type: "Background", value: background },
+          { trait_type: "Top", value: top },
+          { trait_type: "Fur", value: fur },
+          { trait_type: "Skin", value: skin },
+          { trait_type: "Mouth", value: mouth },
+          { trait_type: "Glass", value: glass },
+          { trait_type: "Extra", value: extra },
         ],
       };
+
+      console.log("Constructed metadata:", metaData);
 
       const engine = new Engine({
         url: TW_ENGINE_URL,
@@ -90,7 +101,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
       res.status(200).json({ success: true, ipfsUri: uri, metaData });
       console.log("Response sent to frontend:", { ipfsUri: uri, metaData });
-    } catch (error:any) {
+    } catch (error: any) {
       console.error("Error during minting:", error);
       if (!res.headersSent) {
         res.status(500).json({ message: error.message || "Internal Server Error" });
