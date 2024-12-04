@@ -20,7 +20,7 @@ const getFileName = (path: string | string[]) => {
 };
 
 // NFT Attribute Options
-const backgrounds = ["/images/BackgroundBeige.png", "/images/BackgroundGold.png", "/images/BackgroundGrey.png","/images/BackgroundMatrix.png","/images/BackgroundBlueDream.png","/images/BackgroundPurpleHaze.png","/images/BackgroundNinjaCat.png","/images/backgroundPlatinum.png"];
+const backgrounds = ["/images/BackgroundBeige.png", "/images/BackgroundGold.png", "/images/BackgroundGrey.png","/images/BackgroundMatrix.png","/images/BackgroundBlueDream.png","/images/BackgroundPurpleHaze.png","/images/BackgroundNinjaCat.png","/images/BackgroundPlatinum02.png"];
 const tops = ["/images/HoodieBTC.png", "/images/HoodieLogo.png", "/images/ShirtTang.png", "/images/SuitPurple.png","/images/HoodieFreeRoss.png","/images/SuitGold2.png","/images/RobeWizard.png","/images/SuitPlatinum.png"];
 const furs = ["/images/FurBlue.png", "/images/FurGold2.png", "/images/FurRed.png", "/images/FurGreen.png","/images/FurOrange.png","/images/FurPink.png","/images/FurPurple.png","/images/FurPlatinum.png"];
 const skins = [ "/images/SkinGold.png", "/images/SkinNatural.png", "/images/SkinZombie.png","/images/SkinPlatinum.png"];
@@ -31,7 +31,7 @@ const extra = ["None", "/images/CupBrettGoldJava2.png", "/images/EarringHex.png"
 
 // Configuration
 const WALLET_ADDRESS = "0x575A9960be5f23C8E8aF7F9C8712A539eB255bE6";
-const MINT_PRICE = "0.0001"; // ETH
+const MINT_PRICE = "0.005516237043738244"; // ETH
 const MAX_SUPPLY = 1000; // Set your max supply here
 const CONTRACT_ADDRESS = "0x879175bCCFBC86594b2Ba41aFBeF9C08a7d36b4b" ;
 
@@ -158,7 +158,7 @@ export default function Home() {
     const ipfsHttpUrl = ipfsUri.replace("ipfs://", "https://ipfs.io/ipfs/");
   
     // Prepare Twitter share URL
-    const tweetText = encodeURIComponent(`I just minted a test net${nftName}! Check it out:`);
+    const tweetText = encodeURIComponent(`I just minted a ${nftName}! Check it out:`);
     const url = encodeURIComponent(ipfsHttpUrl); // Use the HTTP URL here
     const hashtags = encodeURIComponent("HighMonkey,NFT,Web3");
   
