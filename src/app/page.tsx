@@ -26,7 +26,7 @@ const furs = ["/images/FurBlue.png", "/images/FurGold2.png", "/images/FurRed.png
 const skins = [ "/images/SkinGold.png", "/images/SkinNatural.png", "/images/SkinZombie.png","/images/SkinPlatinum.png"];
 const mouths = ["/images/MouthBlunt.png", "/images/MouthGoldGrill.png", "/images/MouthTongue.png","/images/MaskGuyFawkes.png","/images/MouthPlatinumGrill.png","/images/USAMask.png"];
 const glasses = ["None","/images/Eyepatch.png", "/images/Glasses3D.png", "/images/GlassesAviator.png", "/images/GlassesHeart.png", "/images/GlassesPurpleRound.png", "/images/GlassesYeezy.png","/images/GlassesMonocle.png","/images/GlassesTang.png","/images/GlassesBlueSilver.png","/images/GlassesBase.png"];
-const extra = ["None", "/images/CupBrettGoldJava2.png", "/images/EarringHex.png", "/images/GoldHoopEarring.png", "/images/HatWizard.png", "/images/HeadbandNinjaCat.png", "/images/CrownGold.png", "/images/CrownPlatinum.png","/images/GMGold02.png","/images/GMPlatinum.png","/images/GMZombie02.png","/images/HoopEarringSilver.png"];
+const extra = ["None", "/images/CupBrettGoldJava2.png", "/images/EarringHex.png", "/images/GoldHoopEarring.png", "/images/HatWizard.png", "/images/HeadbandNinjaCat.png", "/images/CrownGold.png", "/images/CrownPlatinum.png","/images/GMGold02.png","/images/GMPlatinum.png","/images/GMZombie02.png","/images/HoopEarringSilver.png","/images/PendantAfrica.png"];
 
 
 // Configuration
