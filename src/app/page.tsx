@@ -548,7 +548,10 @@ export default function Home() {
 
 {/* Total Minted Display */}
 <div className="text-center text-white text-2xl mt-6">
-  Total Minted: {totalMinted} / {MAX_SUPPLY}
+  <p>Total Minted: {totalMinted} / {MAX_SUPPLY}</p>
+  <p className="text-lg text-gray-300 mt-2">
+    Mint Price: $20.00 USD or 0.005000549785583622 ETH
+  </p>
 </div>
 
 </div>
