@@ -347,12 +347,14 @@ export default function Home() {
       };
       console.log("Transaction object:", tx);
 
+      
+
       // Step 2: Send payment and wait for confirmation
       await new Promise((resolve, reject) => {
         sendAndConfirmTx(tx, {
-          onSuccess: (receipt) => {
-            console.log("Payment confirmed!", receipt); // Log payment receipt
-            resolve(receipt); // Resolve the promise on success
+          onSuccess: (transactionRecipt) => {
+            console.log("Payment confirmed!", transactionRecipt); // Log payment receipt
+            resolve(transactionRecipt.transactionHash); // Resolve the promise on success
           },
           onError: (txError) => {
             console.error("Transaction details:", tx); // Log transaction details
@@ -365,8 +367,9 @@ export default function Home() {
   
       // Step 3: Convert the canvas content to a Blob
       const blob = await convertCanvasToBlob();
-  
+      
       // Step 4: Send minting request and retrieve IPFS URI
+      
       const response = await sendNftMintRequest(blob); // Send the blob to the backend
       const ipfsUri = response.ipfsUri; // Extract the IPFS URI from the response
   
