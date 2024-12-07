@@ -33,7 +33,7 @@ const extra = ["None", "/images/CupBrettGoldJava2.png", "/images/EarringHex.png"
 const WALLET_ADDRESS = "0x575A9960be5f23C8E8aF7F9C8712A539eB255bE6";
 const MINT_PRICE = "0.005516237043738244"; // ETH
 const MAX_SUPPLY = 1000; // Set your max supply here
-const CONTRACT_ADDRESS = "0x879175bCCFBC86594b2Ba41aFBeF9C08a7d36b4b" ;
+const CONTRACT_ADDRESS = "0x095a7b3C834903346c3095e90074A5E2559AD919" ;
 
 interface NFTAttributes {
   background: string;
@@ -507,11 +507,15 @@ export default function Home() {
             <button
             className={`w-full mt-6 px-4 py-2 bg-blue-600 text-white rounded-lg
               ${isNftMinting || isMaxSupplyReached ? 'opacity-50 cursor-not-allowed' : 'hover:bg-blue-700'}`}
-            onClick={handleMint}
+            onClick={() => {
+              alert('Do not refresh the page');
+              handleMint();
+            }}
             disabled={isNftMinting || isMaxSupplyReached}
           >
             {isMaxSupplyReached ? "Sold Out" : isNftMinting ? "Minting..." : "Mint NFT"}
           </button>
+          
           
           )}
         </div>
