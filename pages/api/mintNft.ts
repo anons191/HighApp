@@ -90,7 +90,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       });
 
       const response = await engine.erc721.mintTo(
-        "sepolia",
+        "base",
         TW_CONTRACT_ADDRESS,
         TW_BACKENDWALLET,
         {

@@ -6,7 +6,7 @@ import {
   useSendAndConfirmTransaction,
 } from "thirdweb/react";
 import { client } from "./client";
-import { sepolia, base } from "thirdweb/chains";
+import {  baseSepolia,base, sepolia } from "thirdweb/chains";
 import { toWei } from "thirdweb/utils";
 import { useEffect, useRef, useState } from "react";
 import Confetti from "react-confetti";
@@ -31,7 +31,7 @@ const extra = ["None", "/images/CupBrettGoldJava2.png", "/images/EarringHex.png"
 
 // Configuration
 const WALLET_ADDRESS = "0x575A9960be5f23C8E8aF7F9C8712A539eB255bE6";
-const MINT_PRICE = "0.005516237043738244"; // ETH
+const MINT_PRICE = toWei("0.00005516237043738244"); // ETH
 const MAX_SUPPLY = 1000; // Set your max supply here
 const CONTRACT_ADDRESS = "0x095a7b3C834903346c3095e90074A5E2559AD919" ;
 
@@ -59,7 +59,7 @@ export default function Home() {
       const contract = await getContract({
         client,
         address: CONTRACT_ADDRESS,
-        chain: sepolia,
+        chain: base,
       });
 
       const totalSupply = await readContract({
@@ -337,12 +337,13 @@ export default function Home() {
         //where the nft lands
         to: WALLET_ADDRESS,
         // turns price into wei
-        value: toWei(MINT_PRICE),
+        value: MINT_PRICE,
         // chain in use
-        chain: sepolia,
+        chain: base,
         client: client,
       };
-  
+      console.log("Transaction object:", tx);
+
       // Step 2: Send payment and wait for confirmation
       await new Promise((resolve, reject) => {
         sendAndConfirmTx(tx, {
@@ -351,11 +352,13 @@ export default function Home() {
             resolve(receipt); // Resolve the promise on success
           },
           onError: (txError) => {
+            console.error("Transaction details:", tx); // Log transaction details
             console.error("Transaction failed:", txError); // Log transaction error
-            reject(new Error("Payment failed or was rejected")); // Reject the promise
+            reject(new Error("Payment failed or was rejected or you don't have the right balance")); // Reject the promise
           },
         });
       });
+
   
       // Step 3: Convert the canvas content to a Blob
       const blob = await convertCanvasToBlob();
