@@ -6,6 +6,7 @@ import {
   useSendAndConfirmTransaction,
 } from "thirdweb/react";
 import { client } from "./client";
+import { createWallet, inAppWallet } from "thirdweb/wallets";
 import {  baseSepolia,base, sepolia } from "thirdweb/chains";
 import { toWei } from "thirdweb/utils";
 import { useEffect, useRef, useState } from "react";
@@ -330,6 +331,8 @@ export default function Home() {
     }
 
     setNftMinting(true);
+
+    
   
     try {
       // Step 1: Prepare payment transaction
@@ -405,18 +408,23 @@ export default function Home() {
   // Check if all attributes are selected
   const isReadyToMint = Object.values(attributes).every(value => value !== "");
   
+  
   // Render connect wallet button if no wallet is connected
   if (!wallet) {
     return (
-      <div className="flex justify-center items-center min-h-screen">
-        <ConnectButton 
-          client={client} 
-          appMetadata={{ 
-            name: "High Monkey", 
-            url: "https://example.com" 
-          }} 
-        />
-      </div>
+      <div className="flex flex-col justify-center items-center min-h-screen">
+      <ConnectButton
+        client={client}
+   
+        appMetadata={{
+          name: "High Monkey",
+          url: "https://example.com",
+        }}
+      />
+      <p className="mt-4 text-red-500 text-center">
+        Please use an external wallet like MetaMask or Coinbase. In-app wallets are not supported at this time.
+      </p>
+    </div>
     );
   }
 
