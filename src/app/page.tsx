@@ -425,7 +425,8 @@ export default function Home() {
         }}
       />
       <p className="mt-4 text-red-500 text-center">
-        Please use an external wallet like MetaMask or Coinbase. In-app wallets are not supported at this time.
+        Please use an external wallet like MetaMask or Coinbase. In-app wallets are not supported at this time. Please also use desktop as mobile has been having errors
+        If you pay and nothing mints than contact me on x @Highmonkey888, email highmonkey888@gamil.com
       </p>
     </div>
     );
@@ -548,7 +549,10 @@ export default function Home() {
 
 {/* Total Minted Display */}
 <div className="text-center text-white text-2xl mt-6">
-  Total Minted: {totalMinted} / {MAX_SUPPLY}
+  <p>Total Minted: {totalMinted} / {MAX_SUPPLY}</p>
+  <p className="text-lg text-gray-300 mt-2">
+    Mint Price: $20.00 USD or 0.005000549785583622 ETH
+  </p>
 </div>
 
 </div>
