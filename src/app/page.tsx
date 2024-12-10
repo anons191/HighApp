@@ -426,7 +426,7 @@ export default function Home() {
       />
       <p className="mt-4 text-red-500 text-center">
         Please use an external wallet like MetaMask or Coinbase. In-app wallets are not supported at this time. Please also use desktop as mobile has been having errors
-        If you pay and nothing mints than contact me on x @Highmonkey888, email highmonkey888@gamil.com
+        If you pay and nothing mints than contact me on x @Highmonkey888, email highmonkey888@gamil.com Also make sure your wallet is on base network before payments
       </p>
     </div>
     );
