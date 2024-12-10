@@ -32,7 +32,7 @@ const extra = ["None", "/images/CupBrettGoldJava2.png", "/images/EarringHex.png"
 
 // Configuration
 const WALLET_ADDRESS = "0x575A9960be5f23C8E8aF7F9C8712A539eB255bE6";
-const MINT_PRICE = toWei("0.00005516237043738244"); // ETH
+const MINT_PRICE = toWei("0.005000549785583622"); // ETH
 const MAX_SUPPLY = 1000; // Set your max supply here
 const CONTRACT_ADDRESS = "0x095a7b3C834903346c3095e90074A5E2559AD919" ;
 
